@@ -122,6 +122,8 @@
 
 <p>이메일과 비밀번호를 입력하여 로그인합니다.</p>
 <p>Google 아이디를 통한 소셜로그인이 가능합니다.</p>
+![image](https://github.com/HANBEENi/DOCTOR/assets/99801230/ae7dde8d-f921-4385-ae83-337f28e91161)
+
 
 <p align="center">
 
