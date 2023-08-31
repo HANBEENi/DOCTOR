@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useCallback, useState } from 'react';
 import * as S from './style';
 import Loading from '../../components/commons/Loading';
 import ChatList from '../../components/chats/ChatList';
@@ -30,13 +30,16 @@ const ChatsPage = () => {
     setSearch('');
   };
 
-  const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-  };
+  }, []);
 
   return (
     <S.Wrap>
       <S.Container>
+        <S.BannerBox>
+          <img src="/images/chats/chat_banner.png" alt="" />
+        </S.BannerBox>
         <S.AreaBox>
           <S.AreaList>
             {AREA.map((area, index) => (
@@ -100,8 +103,9 @@ const ChatsPage = () => {
                       key={doctor?.id}
                       userToken={auth}
                       name={doctor?.name}
+                      description={doctor?.description}
                       hospitalName={doctor?.hospital_name}
-                      profileImg={doctor?.img_path}
+                      profileImg={doctor?.users?.img_path}
                       doctorEmail={doctor?.user_email}
                       grade={doctor?.grade}
                     />

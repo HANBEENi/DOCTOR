@@ -8,6 +8,7 @@ export const Wrap = styled.div`
 
 export const Container = styled.div`
   width: 1200px;
+  min-height: calc(100vh - 135px);
   margin: 0 auto;
 
   @media ${RESPONSIVE.tablet} {
@@ -71,7 +72,7 @@ export const SearchBox = styled.div`
   margin: 2.4rem 0 4rem;
 `;
 
-export const SearchForm = styled.form`
+export const SearchForm = styled.div`
   display: flex;
   gap: 0.7rem;
   align-items: center;
@@ -82,11 +83,11 @@ export const SearchForm = styled.form`
 `;
 
 export const SearchInput = styled.input`
-  width: 25rem;
+  width: 30rem;
   padding: 1rem;
   border: 1px solid #000;
   border-radius: 0.6rem;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 400;
   color: #999;
 
@@ -100,7 +101,7 @@ export const SearchInput = styled.input`
 `;
 
 export const ChatListContainer = styled.div`
-  width: 800px;
+  width: 1000px;
   margin: 0 auto 2.5rem;
 
   @media ${RESPONSIVE.tablet} {
@@ -120,4 +121,17 @@ export const ErrorMent = styled.p`
   color: #5429ff;
   text-align: center;
   padding: 5rem 0;
+`;
+
+export const BannerBox = styled.div`
+  width: 100%;
+  margin: -8.5rem 0 5rem;
+
+  /* @media ${RESPONSIVE.mobile} {
+    display: none;
+  } */
+
+  img {
+    width: 100%;
+  }
 `;

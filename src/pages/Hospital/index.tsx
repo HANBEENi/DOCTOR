@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as S from './style';
 import { Link } from 'react-router-dom';
 import useDebounce from '../../hooks/util/useDebounce';
@@ -17,9 +17,9 @@ const HospitalMap = () => {
   const markersRef = useRef([]);
   const mapRef = useRef(null);
 
-  const handleChangeSearch = e => {
+  const handleChangeSearch = useCallback(e => {
     setSearchPlace(`${e.target.value} 동물병원`);
-  };
+  }, []);
 
   // 마우스 오버시 해당 마커의 인포윈도우를 열어주는 함수
   const handleMouseClick = (place, index) => {
@@ -191,7 +191,9 @@ const HospitalMap = () => {
       <S.Container>
         <S.HospitalIntro>
           <S.MainTitle>DOGTOR 동물 병원 찾기</S.MainTitle>
-          <S.SubTitle>가까운 동물 병원을 확인하세요 [위치정보를 활성화 해주세요]</S.SubTitle>
+          <S.SubTitle>
+            내 주변 동물병원을 검색하고 위치를 확인해보세요. [위치정보를 활성화 해주세요]
+          </S.SubTitle>
         </S.HospitalIntro>
         <S.MapContent>
           <S.SearchBox>

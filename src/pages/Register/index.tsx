@@ -53,7 +53,6 @@ const RegisterPage = () => {
 
     if (name === 'email') {
       setEmail(value);
-
       if (EMAILREGEX.test(value)) {
         setValidate({ ...validate, email: false });
       } else {
@@ -76,14 +75,12 @@ const RegisterPage = () => {
         setValidate(prevError => ({ ...prevError, passwordConfirm: false }));
       }
     }
-
     if (name === 'passwordConfirm') {
       setPasswordConfirm(value);
-
       if (password !== value) {
-        setValidate({ ...validate, passwordConfirm: true });
+        setValidate(prevError => ({ ...prevError, passwordConfirm: true }));
       } else {
-        setValidate({ ...validate, passwordConfirm: false });
+        setValidate(prevError => ({ ...prevError, passwordConfirm: false }));
       }
     }
 

@@ -3,13 +3,15 @@ import * as S from './style';
 import ProfileImg from '../../commons/ProfileImg';
 import { ChatListResponse } from '../../../pages/ChatDetail/types';
 import { UserResponse } from '../../../hooks/query/useGetUsersQuery';
+import { imgUrl } from '../../../api';
 
 const ChatBox = ({
   chatInfo,
   userData
 }: {
   chatInfo: ChatListResponse;
-  userData: UserResponse | undefined;
+  userData: UserResponse | null | undefined;
+  status?: string;
 }) => {
   const isUser = userData?.user?.role === 'user';
 
@@ -21,8 +23,8 @@ const ChatBox = ({
           h="6rem"
           src={
             isUser
-              ? chatInfo?.users_chat_rooms_user_vet_emailTousers?.img_path
-              : chatInfo?.users_chat_rooms_user_emailTousers?.img_path
+              ? `${imgUrl}${chatInfo?.users_chat_rooms_user_vet_emailTousers?.img_path}`
+              : `${imgUrl}${chatInfo?.users_chat_rooms_user_emailTousers?.img_path}`
           }
         />
         <S.Status backgroundcolor="#34A853" />

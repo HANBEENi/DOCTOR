@@ -1,11 +1,11 @@
-import React, { MouseEvent, useEffect, useRef, useState } from 'react';
+import React, { MouseEvent, SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
 import * as S from './style';
 import ChatBox from '../../components/chats/ChatBox';
 import ProfileImg from '../../components/commons/ProfileImg';
 import ChatExitModal from '../../components/chats/ChatExitModal';
 import ReviewModal from '../../components/chats/ReviewModal';
 import { io, Socket } from 'socket.io-client';
-import { serverUrl } from '../../api';
+import { imgUrl, serverUrl } from '../../api';
 import { useGetUsersQuery } from '../../hooks/query/useGetUsersQuery';
 import { useGetChatConentsQuery } from '../../hooks/query/useGetChatContentsQuery';
 import { useGetChatListQuery } from '../../hooks/query/useGetChatListQuery';
@@ -46,9 +46,9 @@ const ChatDetail = () => {
     }
   };
 
-  const handleChangeMessage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeMessage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
-  };
+  }, []);
 
   const handleSubmit = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -102,8 +102,45 @@ const ChatDetail = () => {
     setMessage('');
   };
 
-  const handleChatClose = () => {
-    setIsChatActive(false);
+  const handleChatComplete = () => {
+    chatChangeMutate(
+      {
+        id: chatId,
+        status: 'completed'
+      },
+      {
+        onSuccess: () => {
+          Swal.fire('채팅이 종료되었습니다.');
+          chatListRefetch();
+        },
+        onError: (err: any) => {
+          Swal.fire(err.response.data.error);
+        }
+      }
+    );
+  };
+
+  const handleChangeGrade = useCallback((_event: SyntheticEvent<Element, Event>, value: any) => {
+    setGrade(value);
+  }, []);
+
+  const handleChatReview = () => {
+    chatReviewMutate(
+      {
+        id: chatId,
+        grade
+      },
+      {
+        onSuccess: () => {
+          Swal.fire('만족도 조사에 응해주셔서 감사합니다.');
+          setIsReviewModal(false);
+          chatListRefetch();
+        },
+        onError: (err: any) => {
+          Swal.fire(err.response.data.error);
+        }
+      }
+    );
   };
 
   useEffect(() => {
@@ -123,7 +160,7 @@ const ChatDetail = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, chatId, isChatActive]);
 
   useEffect(() => {
     setMessages(chatContents?.ChatContents);
@@ -139,11 +176,15 @@ const ChatDetail = () => {
     socket.on('connect', () => {
       console.log('실시간 상담 접속 완료');
     });
+    socket.on('connect', () => {});
 
     // 연결 종료 시 이벤트 처리
     socket.on('disconnect', () => {
       console.log('실시간 상담 종료');
     });
+    socket.on('disconnect', () => {});
+
+    socket?.emit('join', chatId);
 
     // 메시지 수신 이벤트 처리
     socket.on('msgReceive', ({ email, content, nickname, img_path }) => {
@@ -207,90 +248,101 @@ const ChatDetail = () => {
             </S.ChatListBox>
           )}
         </S.ChatLeftBox>
-        <S.CharRightBox className={isChatActive ? 'active' : ''}>
-          <S.ChatHead>
-            <S.ProfileBox>
-              <ProfileImg
-                w="6rem"
-                h="6rem"
-                src={
-                  isUser
-                    ? chatContents?.checkStatus?.users_chat_rooms_user_vet_emailTousers?.img_path
-                    : chatContents?.checkStatus?.users_chat_rooms_user_emailTousers?.img_path
-                }
-              />
-              <S.ProfileContent>
-                <S.HeadProfileName>
-                  {isUser
-                    ? chatContents?.checkStatus?.users_chat_rooms_user_vet_emailTousers?.nickname
-                    : chatContents?.checkStatus?.users_chat_rooms_user_emailTousers?.nickname}
-                </S.HeadProfileName>
-                {!isUser && chatContents?.checkStatus?.status === 'pending' && (
-                  <S.ChatBtnBox>
-                    <S.AcceptBtn>수락</S.AcceptBtn>
-                    <S.RefuseBtn>거절</S.RefuseBtn>
-                  </S.ChatBtnBox>
-                )}
-              </S.ProfileContent>
-            </S.ProfileBox>
-            <S.HeadBtnBox>
-              <S.BackBtn type="button" onClick={handleChatClose}>
-                목록
-              </S.BackBtn>
-              <S.ExitBtn type="button" onClick={handleChatExitBtn}>
-                <img src="/images/chats/exit.png" alt="채팅방 나가기 아이콘" />
-              </S.ExitBtn>
-            </S.HeadBtnBox>
-          </S.ChatHead>
-          <S.ChatDetailBox ref={ChatUiRef}>
-            {messages?.map((message: any) =>
-              message.email === userData?.user?.email ||
-              message.from_id === userData?.user?.email ? (
-                <MyChat key={message.id} content={message.message} />
-              ) : (
-                <OtherChat
-                  key={message.id}
-                  name={
+        {chatListLength ? (
+          <S.CharRightBox className={isChatActive ? 'active' : ''}>
+            <S.ChatHead>
+              <S.ProfileBox>
+                <ProfileImg
+                  w="6rem"
+                  h="6rem"
+                  src={
                     isUser
-                      ? chatContents?.checkStatus?.users_chat_rooms_user_vet_emailTousers?.nickname
-                      : chatContents?.checkStatus?.users_chat_rooms_user_emailTousers?.nickname
-                  }
-                  content={message.message}
-                  profileImg={
-                    isUser
-                      ? chatContents?.checkStatus?.users_chat_rooms_user_vet_emailTousers?.img_path
-                      : chatContents?.checkStatus?.users_chat_rooms_user_emailTousers?.img_path
+                      ? `${imgUrl}${chatContents?.checkStatus?.users_chat_rooms_user_vet_emailTousers?.img_path}`
+                      : `${imgUrl}${chatContents?.checkStatus?.users_chat_rooms_user_emailTousers?.img_path}`
                   }
                 />
-              )
-            )}
-          </S.ChatDetailBox>
-          <S.ChatForm>
-            <S.FileTextarea>
-              {/* <S.FileInput id="file" type="file" />
-              <S.FileLabel htmlFor="file">
-                <img src="/images/chats/file.png" alt="" />
-              </S.FileLabel> */}
-              <S.ChatInput
-                placeholder={
-                  chatContents?.checkStatus?.status !== 'accepted'
-                    ? '채팅 수락 후 서비스 이용이 가능합니다.'
-                    : '내용을 입력해주세요.'
-                }
-                onChange={handleChangeMessage}
-                value={message}
+                <S.ProfileContent>
+                  <S.HeadProfileName>
+                    {isUser
+                      ? chatContents?.checkStatus?.users_chat_rooms_user_vet_emailTousers?.nickname
+                      : chatContents?.checkStatus?.users_chat_rooms_user_emailTousers?.nickname}
+                  </S.HeadProfileName>
+                  {!isUser && chatContents?.checkStatus?.status === 'pending' && (
+                    <S.ChatBtnBox>
+                      <S.AcceptBtn onClick={handleChatStatusChange('accepted')}>수락</S.AcceptBtn>
+                      <S.RefuseBtn onClick={handleChatStatusChange('rejected')}>거절</S.RefuseBtn>
+                    </S.ChatBtnBox>
+                  )}
+                  {!isUser && chatContents?.checkStatus?.status === 'accepted' && (
+                    <S.ChatBtnBox>
+                      <S.RefuseBtn onClick={handleChatComplete}>채팅종료</S.RefuseBtn>
+                    </S.ChatBtnBox>
+                  )}
+                </S.ProfileContent>
+              </S.ProfileBox>
+              <S.HeadBtnBox>
+                <S.BackBtn type="button" onClick={handleChatClose}>
+                  <HiArrowUturnLeft />
+                </S.BackBtn>
+                <S.ExitBtn type="button" onClick={handleChatExitBtn}>
+                  <HiMiniArrowRightOnRectangle />
+                </S.ExitBtn>
+              </S.HeadBtnBox>
+            </S.ChatHead>
+            <S.ChatDetailBox ref={ChatUiRef}>
+              {messages?.map((message: any) =>
+                message.email === userData?.user?.email ||
+                message.from_id === userData?.user?.email ? (
+                  <MyChat key={message.id} content={message.message} />
+                ) : (
+                  <OtherChat
+                    key={message.id}
+                    name={
+                      isUser
+                        ? chatContents?.checkStatus?.users_chat_rooms_user_vet_emailTousers
+                            ?.nickname
+                        : chatContents?.checkStatus?.users_chat_rooms_user_emailTousers?.nickname
+                    }
+                    content={message.message}
+                    profileImg={
+                      isUser
+                        ? chatContents?.checkStatus?.users_chat_rooms_user_vet_emailTousers
+                            ?.img_path
+                        : chatContents?.checkStatus?.users_chat_rooms_user_emailTousers?.img_path
+                    }
+                  />
+                )
+              )}
+            </S.ChatDetailBox>
+            <S.ChatForm>
+              <S.FileTextarea>
+                <S.ChatInput
+                  placeholder={
+                    chatContents?.checkStatus?.status === 'pending'
+                      ? '채팅 수락 후 서비스 이용이 가능합니다.'
+                      : chatContents?.checkStatus?.status === 'completed'
+                      ? '종료된 채팅방입니다.'
+                      : '내용을 입력해주세요.'
+                  }
+                  onChange={handleChangeMessage}
+                  value={message}
+                  disabled={chatContents?.checkStatus?.status !== 'accepted'}
+                />
+              </S.FileTextarea>
+              <S.SendBtn
+                type="submit"
+                onClick={handleSubmit}
                 disabled={chatContents?.checkStatus?.status !== 'accepted'}
-              />
-            </S.FileTextarea>
-            <S.SendBtn
-              type="submit"
-              onClick={handleSubmit}
-              disabled={chatContents?.checkStatus?.status !== 'accepted'}
-            >
-              <img src="/images/chats/send.png" alt="보내기 아이콘" />
-            </S.SendBtn>
-          </S.ChatForm>
-        </S.CharRightBox>
+              >
+                <img src="/images/chats/send.png" alt="보내기 아이콘" />
+              </S.SendBtn>
+            </S.ChatForm>
+          </S.CharRightBox>
+        ) : (
+          <S.CharRightBox className={isChatActive ? 'active' : ''}>
+            <S.ChatErrorMent>상담중인 채팅방이 존재하지 않습니다.</S.ChatErrorMent>
+          </S.CharRightBox>
+        )}
       </S.Container>
       {isExitModal && (
         <ChatExitModal

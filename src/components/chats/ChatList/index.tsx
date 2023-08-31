@@ -1,9 +1,10 @@
-import React, { ChangeEvent, MouseEvent, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useCallback, useState } from 'react';
 import * as S from '../ChatList/style';
 import ProfileImg from '../../commons/ProfileImg';
 import { Rating } from '@mui/material';
 import Swal from 'sweetalert2';
 import { useConsultRequestMutation } from '../../../hooks/query/useConsultRequestMutation';
+import { imgUrl } from '../../../api';
 
 interface ChatListProps {
   userToken?: string | null;
@@ -12,6 +13,8 @@ interface ChatListProps {
   profileImg: string | null;
   doctorEmail: string;
   grade?: number | null;
+  role: string | undefined;
+  description: string;
 }
 
 const ChatList = ({
@@ -20,7 +23,9 @@ const ChatList = ({
   hospitalName,
   profileImg,
   doctorEmail,
-  grade
+  grade,
+  role,
+  description
 }: ChatListProps) => {
   console.log(doctorEmail);
   const [consult, setConsult] = useState('');
@@ -36,29 +41,33 @@ const ChatList = ({
     }
   };
 
-  const handleChangeConsult = (e: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChangeConsult = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     setConsult(e.target.value);
-  };
+  }, []);
 
   const handleConsultRequest = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    consultRequestMutate(
-      {
-        vetEmail: doctorEmail,
-        message: consult
-      },
-      {
-        onSuccess: () => {
-          setIsConsultModal(false);
-          setConsult('');
-          Swal.fire('상담신청이 완료 되었습니다.');
+    if (consult) {
+      consultRequestMutate(
+        {
+          vetEmail: doctorEmail,
+          message: consult
         },
-        onError: (err: any) => {
-          Swal.fire(err.response.data.error);
+        {
+          onSuccess: () => {
+            setIsConsultModal(false);
+            setConsult('');
+            Swal.fire('상담신청이 완료 되었습니다.');
+          },
+          onError: (err: any) => {
+            Swal.fire(err.response.data.error);
+          }
         }
-      }
-    );
+      );
+    } else {
+      Swal.fire('상담 내용을 입력해주세요.');
+    }
   };
 
   return (
@@ -66,7 +75,7 @@ const ChatList = ({
       <S.ChatList>
         <S.ListBox>
           <S.ListContainer>
-            <ProfileImg w="8rem" h="8rem" src={profileImg || '/images/commons/kkam.png'} />
+            <ProfileImg w="8rem" h="8rem" src={`${imgUrl}${profileImg}`} />
             <S.ListContentBox>
               <S.NameRateBox>
                 <p>
@@ -74,7 +83,7 @@ const ChatList = ({
                 </p>
                 <Rating name="read-only" value={grade} readOnly size="large" />
               </S.NameRateBox>
-              <S.ListDetail>검은인간 동물병원에서 제일 실력있는 수의사 입니다.</S.ListDetail>
+              <S.ListDetail>{description}</S.ListDetail>
             </S.ListContentBox>
           </S.ListContainer>
           <S.ListBtnBox type="button" onClick={handleToggleConsultModal}>

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, MouseEvent, useCallback, useEffect, useState } from 'react';
 import * as S from './style';
 import { Input } from '../../components/inputs/FormInput/style';
 import FormButton from '../../components/buttons/FormButton';
@@ -13,11 +13,13 @@ import { useAtom } from 'jotai';
 import { tokenAtom } from '../../atoms/atoms';
 import { EMAILREGEX, PASSOWRDREGEX } from '../../constants/commons/validaties';
 import { serverUrl } from '../../api';
+import { useGetUsersQuery } from '../../hooks/query/useGetUsersQuery';
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const { mutate: loginMutate }: any = useLoginMutation();
+  const user = useGetUsersQuery();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,7 +39,7 @@ const LoginPage = () => {
     setRememberMe(e.target.checked);
   };
 
-  const handleChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     if (name === 'email') {
@@ -59,7 +61,7 @@ const LoginPage = () => {
         setValidate(prevError => ({ ...prevError, password: true }));
       }
     }
-  };
+  }, []);
 
   const handleEmailClean = () => {
     setEmail('');
@@ -84,6 +86,7 @@ const LoginPage = () => {
 
           sessionStorage.setItem('token', loginData.data);
           setUserToken(loginData.data);
+          user.refetch();
           Swal.fire('로그인 성공');
           navigate(ROUTE.HOME.link);
         },
@@ -98,6 +101,14 @@ const LoginPage = () => {
     window.location.assign(`${serverUrl}/auth/google`);
   };
 
+<<<<<<< HEAD
+=======
+  const handleKakaoLogin = async () => {
+    window.location.assign(`${serverUrl}/auth/kakao`);
+    // Swal.fire('서비스 이용 준비중입니다.');
+  };
+
+>>>>>>> 5078b439b484e4c687f0486bf4a3ad71debf4426
   useEffect(() => {
     if (userToken) {
       navigate(ROUTE.HOME.link);
@@ -163,7 +174,6 @@ const LoginPage = () => {
                 label="아이디 기억하기"
               />
             </FormGroup>
-            <Link to="/">비밀번호를 잊어버리셨나요?</Link>
           </S.RememberBox>
           <S.ButtonBox>
             <FormButton

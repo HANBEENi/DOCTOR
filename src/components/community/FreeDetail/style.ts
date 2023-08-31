@@ -15,7 +15,6 @@ export const ListContainer = styled.div`
 
 export const Header = styled.div`
   width: 100%;
-  border-top: 2px solid black;
   border-bottom: 2px solid black;
   display: flex;
 `;
@@ -27,8 +26,7 @@ export const Title = styled.div`
   padding: 1.5rem 0 1.5rem 0.5rem;
 `;
 
-export const Date = styled.div`
-  width: 10%;
+export const DateContainer = styled.div`
   font-size: 1.3rem;
   padding: 1.5rem 0 1.5rem 0;
   display: flex;
@@ -46,15 +44,17 @@ export const MainDiv = styled.div`
 export const MainText = styled.div`
   width: 100%;
   padding: 1.5rem 0 0 0.5rem;
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 1.8rem;
+  line-height: 1.4;
+  overflow-y: auto;
 `;
 
 export const MainTextArea = styled.textarea`
   width: 100%;
-  padding: 1.5rem 0 0 0.5rem;
-  font-size: 1.5rem;
-  line-height: 2rem;
+  height: 40rem;
+  padding: 1.6rem 0 0 0.5rem;
+  font-size: 1.8rem;
+  line-height: 1.4rem;
   resize: none;
   height: 100%;
   border: none;
@@ -65,9 +65,22 @@ export const HeartIcon = styled.div`
   cursor: pointer;
   font-size: 2rem;
   color: #9747ff;
-  width: 100%;
-  text-align: center;
-  padding-top: 1rem;
+  width: 10%;
+  margin: auto;
+  padding-top: 4rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+`;
+
+export const HeartNumber = styled.div`
+  padding-top: 0.35rem;
+  color: black;
+  font-size: 3.3rem;
+
+  @media ${RESPONSIVE.tablet} {
+    padding-top: 0.7rem;
+  }
 `;
 
 export const ReportText = styled.button`
@@ -98,7 +111,10 @@ export const Correction = styled.button`
   transition: all 0.3s ease 0s;
   cursor: pointer;
   outline: none;
-  margin-right: 1rem;
+`;
+
+export const DeleteBtn = styled(Correction)`
+  background-color: #f00;
 `;
 
 export const ConfirmButton = styled.button`
@@ -230,8 +246,8 @@ export const ListDiv = styled.div`
 export const ListButton = styled(Link)`
   background-color: #747474;
   color: white;
-  font-size: 1.3rem;
-  padding: 0.3rem;
+  font-size: 1.6rem;
+  padding: 0.5rem;
   border-radius: 3px;
 `;
 
@@ -343,4 +359,56 @@ export const DeletePostButton = styled.button`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+export const UserWrap = styled.div`
+  padding-left: 0.5rem;
+  padding-top: 1rem;
+  font-size: 1.5rem;
+`;
+
+export const SolidUserDiv = styled.div`
+  display: flex;
+`;
+
+export const Nickname = styled.span`
+  margin-left: 0.5rem;
+`;
+
+export const BlackDiv = styled.div`
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+`;
+
+export const TitleTextarea = styled.textarea`
+  resize: none;
+  width: 75rem;
+  align-items: center;
+  padding-top: 2rem;
+`;
+
+export const Pre = styled.pre`
+  width: 100%;
+  height: 100%;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: auto;
+`;
+
+export const HeaderBox = styled.div`
+  margin-top: 10rem;
+`;
+
+export const MyBtnBox = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
 `;

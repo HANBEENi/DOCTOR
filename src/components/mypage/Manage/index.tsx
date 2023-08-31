@@ -9,10 +9,20 @@ interface MyManageProps {
 }
 
 const MyManage = ({ vetStatus }: MyManageProps) => {
+  const { data: userData, refetch } = useGetUsersQuery();
+
   const [isBasic, setIsBasic] = useState(false);
   const [isVet, setIsVet] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+<<<<<<< HEAD
+=======
+  const [nickname, setNickname] = useState('');
+  const [hospital, setHospital] = useState(userData?.vet?.hospital_name);
+  const [description, setDescription] = useState(userData?.vet?.description);
+  const [region, setRegion] = useState(userData?.vet?.region);
+
+>>>>>>> 5078b439b484e4c687f0486bf4a3ad71debf4426
   const [validate, setValidate] = useState({
     password: false,
     passwordConfirm: false
@@ -35,8 +45,13 @@ const MyManage = ({ vetStatus }: MyManageProps) => {
     setPassword('');
     setPasswordConfirm('');
   };
+<<<<<<< HEAD
   const { data: userData } = useGetUsersQuery();
   const generateAsterisks = num => '*'.repeat(Math.min(num, 10));
+=======
+
+  const generateAsterisks = (num: number): string => '*'.repeat(Math.min(num, 10));
+>>>>>>> 5078b439b484e4c687f0486bf4a3ad71debf4426
   const passwordCheck = userData?.user?.password;
   const passwordLength = passwordCheck ? userData?.user?.password?.length : 0;
   const maskedPassword = generateAsterisks(passwordLength);
@@ -71,6 +86,7 @@ const MyManage = ({ vetStatus }: MyManageProps) => {
     }
   };
 
+<<<<<<< HEAD
   const certificationSection = (
     <>
       <S.Title2>
@@ -157,6 +173,98 @@ const MyManage = ({ vetStatus }: MyManageProps) => {
       )}
     </>
   );
+=======
+  const onChangeNickname = (e: ChangeEvent<HTMLInputElement>) => {
+    setNickname(e.target.value);
+  };
+
+  const handleRegister = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const formData: any = new FormData();
+    formData.append('password', password);
+    formData.append('nickname', nickname);
+    if (nickname && password && passwordConfirm) {
+      registerMutate(formData, {
+        onSuccess: () => {
+          setIsBasic(false);
+          refetch();
+          Swal.fire('개인정보 수정이 완료되었습니다');
+        },
+        onError: (err: any) => {
+          Swal.fire(err.response.data.error);
+        }
+      });
+    } else {
+      Swal.fire('빈칸을 모두 입력해주세요.');
+    }
+  };
+
+  const handleRegisterNickname = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const formData: any = new FormData();
+    formData.append('nickname', nickname);
+    registerMutate(formData, {
+      onSuccess: () => {
+        setIsBasic(false);
+        refetch();
+        Swal.fire('개인정보 수정이 완료되었습니다');
+      },
+      onError: (err: any) => {
+        Swal.fire(err.response.data.error);
+      }
+    });
+  };
+
+  const handleRegisterVet = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    registerVetMutate(
+      {
+        hospital_name: hospital,
+        description: description,
+        region: region
+      },
+      {
+        onSuccess: () => {
+          setIsVet(false);
+          refetch();
+          Swal.fire('수의사 정보 수정이 완료되었습니다');
+        },
+        onError: (err: any) => {
+          Swal.fire(err.response.data.error);
+        }
+      }
+    );
+  };
+
+  const vetRegion =
+    userData?.vet?.region === 'Seoul'
+      ? '서울'
+      : userData?.vet?.region === 'Gyeonggi'
+      ? '경기'
+      : userData?.vet?.region === 'Incheon'
+      ? '인천'
+      : userData?.vet?.region === 'Daejeon'
+      ? '대전'
+      : userData?.vet?.region === 'Daegu'
+      ? '대구'
+      : userData?.vet?.region === 'Gwangju'
+      ? '광주'
+      : userData?.vet?.region === 'Ulsan'
+      ? '울산'
+      : userData?.vet?.region === 'Busan'
+      ? '부산'
+      : userData?.vet?.region === 'Gangwon'
+      ? '강원도'
+      : userData?.vet?.region === 'Chungcheong'
+      ? '충청도'
+      : userData?.vet?.region === 'Jeolla'
+      ? '전라도'
+      : userData?.vet?.region === 'Gyeongsang'
+      ? '경상도'
+      : userData?.vet?.region === 'Jeju'
+      ? '제주도'
+      : '';
+>>>>>>> 5078b439b484e4c687f0486bf4a3ad71debf4426
 
   return (
     <div>
@@ -196,12 +304,16 @@ const MyManage = ({ vetStatus }: MyManageProps) => {
         </S.LeftText>
         <S.InputDiv>
           {isBasic ? (
-            <S.RightInput
-              type="password"
-              name="password"
-              value={password}
-              onChange={onChangeInput}
-            />
+            userData?.user?.user_type !== 'google' ? (
+              <S.RightInput
+                type="password"
+                name="password"
+                value={password}
+                onChange={onChangeInput}
+              />
+            ) : (
+              <S.RightText>{maskedPassword}</S.RightText>
+            )
           ) : (
             <S.RightText>{maskedPassword}</S.RightText>
           )}
@@ -214,7 +326,7 @@ const MyManage = ({ vetStatus }: MyManageProps) => {
           </S.ConfirmDiv>
         )}
       </S.MainBox2>
-      {isBasic && (
+      {isBasic && userData?.user?.user_type !== 'google' && (
         <S.MainBox2>
           <S.LeftText>
             <S.CenteredText>비밀번호 확인</S.CenteredText>
@@ -234,6 +346,7 @@ const MyManage = ({ vetStatus }: MyManageProps) => {
           )}
         </S.MainBox2>
       )}
+<<<<<<< HEAD
       {isBasic && (
         <S.ButtonDiv>
           <S.BlueButton>확인</S.BlueButton>
@@ -241,6 +354,103 @@ const MyManage = ({ vetStatus }: MyManageProps) => {
         </S.ButtonDiv>
       )}
       {vetStatus === 'accepted' && certificationSection}
+=======
+      {isBasic &&
+        (userData?.user?.user_type === 'google' ? (
+          <S.ButtonDiv>
+            <S.BlueButton onClick={handleRegisterNickname}>확인</S.BlueButton>
+            <S.RedButton onClick={handleEditBasic}>취소</S.RedButton>
+          </S.ButtonDiv>
+        ) : (
+          <S.ButtonDiv>
+            <S.BlueButton onClick={handleRegister}>확인</S.BlueButton>
+            <S.RedButton onClick={handleEditBasic}>취소</S.RedButton>
+          </S.ButtonDiv>
+        ))}
+
+      {vetStatus === 'accepted' && (
+        <>
+          <S.Title2>
+            <S.BasicHeader>수의사 정보</S.BasicHeader>
+          </S.Title2>
+          <S.Pen>
+            <BsPen size="15" onClick={handleEditVet} />
+          </S.Pen>
+          {vetStatus === 'accepted' && (
+            <S.MainBox>
+              <S.LeftText>
+                <S.CenteredText>인증상태</S.CenteredText>
+              </S.LeftText>
+              <S.InputDiv>
+                <S.RightText2>인증됨</S.RightText2>
+              </S.InputDiv>
+            </S.MainBox>
+          )}
+          <S.MainBox2>
+            <S.LeftText>
+              <S.CenteredText>이름</S.CenteredText>
+            </S.LeftText>
+            <S.InputDiv>
+              <S.RightText>{userData?.vet?.name}</S.RightText>
+            </S.InputDiv>
+          </S.MainBox2>
+          <S.MainBox2>
+            <S.LeftText>
+              <S.CenteredText>병원</S.CenteredText>
+            </S.LeftText>
+            <S.InputDiv>
+              {isVet ? (
+                <S.RightInput
+                  placeholder={userData?.vet?.hospital_name}
+                  name="hospital"
+                  onChange={handleChangeInput}
+                />
+              ) : (
+                <S.RightText>{userData?.vet?.hospital_name}</S.RightText>
+              )}
+            </S.InputDiv>
+          </S.MainBox2>
+          <S.MainBox2>
+            <S.LeftText>
+              <S.CenteredText>병원 소재지</S.CenteredText>
+            </S.LeftText>
+            <S.InputDiv>
+              {isVet ? (
+                <S.Select name="region" onChange={handleChangeSelect}>
+                  {RegionOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </S.Select>
+              ) : (
+                <S.RightText>{vetRegion}</S.RightText>
+              )}
+            </S.InputDiv>
+          </S.MainBox2>
+          <S.MainBox3>
+            <S.LeftText>
+              <S.CenteredText>병원 소개</S.CenteredText>
+            </S.LeftText>
+            <S.InputDiv2>
+              {isVet ? (
+                <S.RightInput2 name="description" onChange={handleChangeTextarea}>
+                  {userData?.vet?.description}
+                </S.RightInput2>
+              ) : (
+                <S.RightText>{userData?.vet?.description}</S.RightText>
+              )}
+            </S.InputDiv2>
+          </S.MainBox3>
+          {isVet && (
+            <S.ButtonDiv>
+              <S.BlueButton onClick={handleRegisterVet}>확인</S.BlueButton>
+              <S.RedButton onClick={handleEditVet}>취소</S.RedButton>
+            </S.ButtonDiv>
+          )}
+        </>
+      )}
+>>>>>>> 5078b439b484e4c687f0486bf4a3ad71debf4426
     </div>
   );
 };

@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import * as S from './style';
 import { Link, useLocation } from 'react-router-dom';
 import { HiMenu } from 'react-icons/hi';
-import { IoMdNotifications } from 'react-icons/io';
 import ProfileImg from '../ProfileImg';
 import { ROUTE } from '../../../constants/routes/routeData';
 import { tokenAtom } from '../../../atoms/atoms';
 import { MENU, PROFILE_MENU } from '../../../constants/commons/menus';
 import { useGetUsersQuery } from '../../../hooks/query/useGetUsersQuery';
 import { useAtomValue } from 'jotai';
+<<<<<<< HEAD
+=======
+import Swal from 'sweetalert2';
+import { imgUrl } from '../../../api';
+>>>>>>> 5078b439b484e4c687f0486bf4a3ad71debf4426
 
 const Header = () => {
   const auth = useAtomValue(tokenAtom);
@@ -16,13 +20,17 @@ const Header = () => {
 
   const [isProfileMenu, setIsProfileMenu] = useState(false);
   const [isMobileMenu, setIsMobileMenu] = useState(false);
-  const [isAlramMenu, setIsAlramMenu] = useState(false);
+  // const [isAlramMenu, setIsAlramMenu] = useState(false);
 
-  const { data: userData } = useGetUsersQuery();
+  const { data: userData, refetch: userRefetch } = useGetUsersQuery();
 
-  const handleModalClose = () => {
-    setIsAlramMenu(false);
-  };
+  // const handleModalClose = () => {
+  //   setIsAlramMenu(false);
+  // };
+
+  // const handleToggleAlramBtn = () => {
+  //   setIsAlramMenu(prev => !prev);
+  // };
 
   const handleProfileBox = () => {
     setIsProfileMenu(prev => !prev);
@@ -38,9 +46,22 @@ const Header = () => {
     window.location.reload();
   };
 
+<<<<<<< HEAD
   const handleToggleAlramBtn = () => {
     setIsAlramMenu(prev => !prev);
   };
+=======
+  useEffect(() => {
+    if (userData?.user?.deleted_at) {
+      Swal.fire('서비스 이용이 불가능한 계정입니다.');
+
+      setTimeout(() => {
+        handleLogout();
+      }, 3000);
+    }
+    userRefetch();
+  }, [userData]);
+>>>>>>> 5078b439b484e4c687f0486bf4a3ad71debf4426
 
   return (
     <S.Wrap>
@@ -62,7 +83,7 @@ const Header = () => {
               ))}
             </S.MenuList>
             <S.SubMenuWrap>
-              {auth && (
+              {/* {auth && (
                 <S.AlramBox>
                   <S.AlramNumBox>
                     <span>10</span>
@@ -103,20 +124,32 @@ const Header = () => {
                     </S.AlramContainer>
                   )}
                 </S.AlramBox>
-              )}
+              )} */}
               {auth ? (
                 <S.ProfileWrap>
                   <S.ProfileBox onClick={handleProfileBox}>
                     <S.ProfileContainer>
                       <p>{userData?.user?.nickname}</p>
                       <S.ProfileImgBox>
-                        <ProfileImg w="4rem" h="4rem" src={userData?.user?.img_path} />
+                        <ProfileImg
+                          w="4rem"
+                          h="4rem"
+                          src={`${imgUrl}${userData?.user?.img_path}`}
+                        />
                       </S.ProfileImgBox>
                     </S.ProfileContainer>
                   </S.ProfileBox>
                   {isProfileMenu && (
                     <S.ProfileDetailBox>
                       <S.ProfileBoxMenu>
+                        {userData?.user?.role === 'admin' && (
+                          <li>
+                            <Link to={ROUTE.ADMINUSERINFO.link} onClick={handleProfileBox}>
+                              관리자페이지
+                            </Link>
+                          </li>
+                        )}
+
                         {PROFILE_MENU.map(({ id, name, link }) => (
                           <li key={id}>
                             <Link to={link} onClick={handleProfileBox}>
@@ -142,7 +175,7 @@ const Header = () => {
           </S.MenuBox>
         </S.Navigation>
         <S.MobileSubMenu>
-          {auth && (
+          {/* {auth && (
             <S.AlramBox>
               <S.AlramNumBox>
                 <span>10</span>
@@ -203,7 +236,7 @@ const Header = () => {
                 </S.AlramContainer>
               )}
             </S.AlramBox>
-          )}
+          )} */}
           <S.MobileMenuBtn type="button" onClick={handleMobileMenuBtn}>
             <HiMenu />
           </S.MobileMenuBtn>
@@ -220,6 +253,7 @@ const Header = () => {
               </S.MobileMenuCloseBtn>
             </S.MobileMenuHead>
             {auth ? (
+<<<<<<< HEAD
               <S.MobileProfileBox>
                 <ProfileImg w="6rem" h="6rem" src="/images/commons/kkam.png" />
                 <p>깜장이 수의사 님</p>
@@ -227,6 +261,20 @@ const Header = () => {
                   로그아웃
                 </button>
               </S.MobileProfileBox>
+=======
+              <>
+                <S.MobileProfileBox>
+                  <ProfileImg w="6rem" h="6rem" src={`${imgUrl}${userData?.user?.img_path}`} />
+                  <p>{userData?.user?.nickname} 님</p>
+                  <button type="button" onClick={handleLogout}>
+                    로그아웃
+                  </button>
+                </S.MobileProfileBox>
+                <S.MyPageLink to={ROUTE.MYPAGE.link} onClick={handleMobileMenuBtn}>
+                  마이페이지
+                </S.MyPageLink>
+              </>
+>>>>>>> 5078b439b484e4c687f0486bf4a3ad71debf4426
             ) : (
               <S.MobileLoginBox>
                 <S.LoginMent>로그인 후 이용해 주세요.</S.LoginMent>
